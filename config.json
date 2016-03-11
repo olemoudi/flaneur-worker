@@ -1,0 +1,6 @@
+{
+    "Id": "Flann",
+    "Workers": 20,
+    "URLs" : "minialexa.txt",
+    "Port" : 8337
+}

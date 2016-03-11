@@ -6,46 +6,31 @@ import "os"
 import "bufio"
 import "time"
 import "sync/atomic"
-import "encoding/json"
+
+//import "encoding/json"
 import "flag"
 
 var usage = `brau
 brau brau
+
 `
 
-type Configuration struct {
-	Id      string
-	Workers int
-	URLs    string
-}
-
-func loadConfig(fpath string) Configuration {
-	config := Configuration{}
-	if &fpath != nil {
-		configFile, err := os.Open(fpath)
-		if err != nil {
-			fmt.Println("Error opening config file:", fpath)
-			return config
-		}
-		decoder := json.NewDecoder(configFile)
-		err = decoder.Decode(&config)
-		if err != nil {
-			fmt.Println("Error parsing config file:", fpath)
-		}
+func launchWebServer(port int) {
+	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	if err != nil {
+		panic("ListenAndServe: " + err.Error())
 	}
-	return config
 }
-
-const (
-	defaultconfig = "config.json"
-)
 
 func main() {
+
+	// load config and command line parameters
 
 	config := loadConfig(defaultconfig)
 	//configFile := flag.String("config", "config.json", "Path to JSON Configuration File")
 	flag.StringVar(&config.Id, "id", config.Id, "String Identifier")
 	flag.IntVar(&config.Workers, "workers", config.Workers, "Number of Parallel Goroutines")
+	flag.IntVar(&config.Port, "port", config.Port, "Port for the webserver")
 	flag.StringVar(&config.URLs, "urls", config.URLs, "File with list of URLs")
 
 	flag.Usage = func() {
@@ -55,6 +40,16 @@ func main() {
 	}
 
 	flag.Parse()
+
+	// setup logging util
+	// TODO
+
+	// create supporting structures and channels
+
+	// start web server
+
+	setupServerHandlers()
+	go launchWebServer(config.Port)
 
 	fmt.Println("Starting Node", config.Id)
 
